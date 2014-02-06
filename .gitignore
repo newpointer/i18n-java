@@ -5,5 +5,9 @@
 
 /.project
 /.settings
+common/.classpath
+common/.project
+common/.settings/
+common/target/classes/
 
 *.versionsBackup
