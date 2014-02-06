@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -29,7 +30,7 @@ import com.ibm.icu.util.ULocale;
  */
 // TODO Object[] args
 // TODO cash
-public class JsonBundleMessageSource extends AbstractMessageSource  implements InitializingBean {
+public class JsonBundleMessageSource extends AbstractMessageSource implements InitializingBean {
 
     private static Logger logger = LoggerFactory.getLogger(JsonBundleMessageSource.class);
     //
@@ -39,7 +40,6 @@ public class JsonBundleMessageSource extends AbstractMessageSource  implements I
 
     private PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver;
 
-    @Resource
     private ObjectMapper objectMapper;
 
     private Map<String, Map<String, Object>> bundle;
@@ -166,6 +166,11 @@ public class JsonBundleMessageSource extends AbstractMessageSource  implements I
 
     @SuppressWarnings("unchecked")
     private void init() throws Exception {
+        objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        objectMapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false);
+        objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
 
         org.springframework.core.io.Resource[] resourceList = pathMatchingResourcePatternResolver.getResources(jsonBundlePath);
