@@ -8,6 +8,6 @@
 common/.classpath
 common/.project
 common/.settings/
-common/target/classes/
+common/target/
 
 *.versionsBackup
