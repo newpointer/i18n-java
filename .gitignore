@@ -11,3 +11,4 @@ common/.settings/
 common/target/
 
 *.versionsBackup
+*.log
