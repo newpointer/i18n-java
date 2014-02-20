@@ -26,9 +26,8 @@ public class JsonBundleMessageSourceTest {
     //
 
     private static Locale RU_LOCALE = new Locale("ru");
-    private static Locale US_LOCALE = Locale.US;
+    private static Locale EN_LOCALE = Locale.ENGLISH;
     private static Locale DE_LOCALE = Locale.GERMAN;
-    private static Locale[] LOCALES = {RU_LOCALE, US_LOCALE, DE_LOCALE};
 
     @Resource
     private JsonBundleMessageSource messageSource;
@@ -44,7 +43,7 @@ public class JsonBundleMessageSourceTest {
         String ruMessage = messageSource.getMessage("system.xxx.1", null, RU_LOCALE);
         assertEquals("сообщение 1", ruMessage);
 
-        String enMessage = messageSource.getMessage("system.xxx.1", null, US_LOCALE);
+        String enMessage = messageSource.getMessage("system.xxx.1", null, EN_LOCALE);
         assertEquals("message 1", enMessage);
 
         String deMessage = messageSource.getMessage("system.xxx.1", null, DE_LOCALE);
@@ -52,61 +51,109 @@ public class JsonBundleMessageSourceTest {
     }
 
     @Test
-    public void test_tr() {
-        String k;
-        String c;
-        String m;
+    public void test_baseLang() {
+        // Базовый язык [ru] - как такового перевода нет :)...
+        Locale locale = RU_LOCALE;
 
-        for (Locale locale : LOCALES) {
-            logger.debug("Локаль: {}...", locale);
+        // tr - простой перевод
+        assertEquals(messageSource.tr("ключ", null, locale), "ключ");
 
-            k = "нет такого ключа";
-            m = messageSource.tr(k, null, locale);
-            logger.debug("{} -> {}", k, m);
+        // trc - перевод с контекстом
+        assertEquals(messageSource.trc("ключ", "к разгадке чего-либо", null, locale), "ключ");
+        assertEquals(messageSource.trc("ключ", "ключ воды, приток реки", null, locale), "ключ");
 
-            k = "";
-            m = messageSource.tr(k, null, locale);
-            logger.debug("{} -> {}", k, m);
+        // trn - простой перевод с формами множественного числа
+        assertEquals(messageSource.trn("ключ", 0, null, locale), "ключей");
+        assertEquals(messageSource.trn("ключ", 1, null, locale), "ключ");
+        assertEquals(messageSource.trn("ключ", 2, null, locale), "ключа");
+        assertEquals(messageSource.trn("ключ", 5, null, locale), "ключей");
 
-            k = "Ключ 1-1";
-            m = messageSource.tr(k, null, locale);
-            logger.debug("{} -> {}", k, m);
+        // trnc - перевод с контекстом и с формами множественного числа
+        assertEquals(messageSource.trnc("ключ", 0, "к разгадке чего-либо", null, locale), "ключей");
+        assertEquals(messageSource.trnc("ключ", 1, "к разгадке чего-либо", null, locale), "ключ");
+        assertEquals(messageSource.trnc("ключ", 2, "к разгадке чего-либо", null, locale), "ключа");
+        assertEquals(messageSource.trnc("ключ", 5, "к разгадке чего-либо", null, locale), "ключей");
 
-            k = "Ключ 1-1-1";
-            m = messageSource.tr(k, null, locale);
-            logger.debug("{} -> {}", k, m);
+        // В бандле только ключ, нет контекста, нет форм множественного числа...
+        // tr - простой перевод
+        assertEquals(messageSource.tr("корова", null, locale), "корова");
+        // trc - нет контекста в бандле
+        assertEquals(messageSource.trc("корова", "корова", null, locale), "корова");
+        // trn - нет форм множественного числа в бандле
+        assertEquals(messageSource.trn("корова", 0, null, locale), "корова");
+        assertEquals(messageSource.trn("корова", 1, null, locale), "корова");
+        assertEquals(messageSource.trn("корова", 2, null, locale), "корова");
+        assertEquals(messageSource.trn("корова", 5, null, locale), "корова");
+        // trnc - нет форм множественного числа в бандле, нет контекста в бандле
+        assertEquals(messageSource.trnc("корова", 0, "корова", null, locale), "корова");
+        assertEquals(messageSource.trnc("корова", 1, "корова", null, locale), "корова");
+        assertEquals(messageSource.trnc("корова", 2, "корова", null, locale), "корова");
+        assertEquals(messageSource.trnc("корова", 5, "корова", null, locale), "корова");
 
-            k = "Ключ \"XXX\"";
-            c = "Нет такого контекста";
-            m = messageSource.trc(k, c, null, locale);
-            logger.debug("{}, {} -> {}", new Object[]{k, c, m});
+        // Перевод предложений...
+        // tr - простой перевод
+        assertEquals(messageSource.tr("Красивый лиловый шар, наполненный водородом.", null, locale), "Красивый лиловый шар, наполненный водородом.");
+        // trn - простой перевод с формами множественного числа
+        assertEquals(messageSource.trn("Красивый лиловый шар, наполненный водородом.", 0, null, locale), "Красивых лиловых шаров, наполненных водородом.");
+        assertEquals(messageSource.trn("Красивый лиловый шар, наполненный водородом.", 1, null, locale), "Красивый лиловый шар, наполненный водородом.");
+        assertEquals(messageSource.trn("Красивый лиловый шар, наполненный водородом.", 2, null, locale), "Красивых лиловых шара, наполненных водородом.");
 
-            k = "Ключ \"ZZZ\"";
-            c = "Контекст \"ZZZ\"";
-            m = messageSource.trc(k, c, null, locale);
-            logger.debug("{}, {} -> {}", new Object[]{k, c, m});
+        // Трансляция "системных ключей"
+        assertEquals(messageSource.tr("SYSTEM_ERROR", null, locale), "Системная ошибка");
+    }
 
-            for (int i = 0; i <= 22; i++) {
-                k = "Ключ 1-1-1/Ключа 1-1-1/Ключей 1-1-1";
-                m = messageSource.trn(k, i, null, locale);
-                logger.debug("{} {}", i, m);
-            }
+    @Test
+    public void test_translatedLang() {
+        // Язык перевода [en]...
+        Locale locale = EN_LOCALE;
 
-            k = "xxx/rrr/vvv";
-            m = messageSource.trn(k, 0, null, locale);
-            logger.debug("{} -> {}", k, m);
+        // tr - простой перевод
+        assertEquals(messageSource.tr("ключ", null, locale), "key");
 
-            for (int i = 0; i <= 22; i++) {
-                k = "Ключ \"ZZZ\"/Ключа\"ZZZ\"/Ключей \"ZZZ\"";
-                c = "Контекст \"ZZZ\"";
-                m = messageSource.trnc(k, i, c, null, locale);
-                logger.debug("{} {} {}", new Object[]{i, m, c});
-            }
+        // trc - перевод с контекстом
+        assertEquals(messageSource.trc("ключ", "к разгадке чего-либо", null, locale), "clue");
+        assertEquals(messageSource.trc("ключ", "ключ воды, приток реки", null, locale), "feeder");
 
-            k = "xxx/rrr/vvv";
-            c = "Контекст \"ZZZ\"";
-            m = messageSource.trnc(k, 0, c, null, locale);
-            logger.debug("{} -> {} {}", new Object[]{k, m, c});
-        }
+        // trn - простой перевод с формами множественного числа
+        assertEquals(messageSource.trn("ключ", 0, null, locale), "keys");
+        assertEquals(messageSource.trn("ключ", 1, null, locale), "key");
+        assertEquals(messageSource.trn("ключ", 2, null, locale), "keys");
+        assertEquals(messageSource.trn("ключ", 5, null, locale), "keys");
+
+        // trnc - перевод с контекстом и с формами множественного числа
+        assertEquals(messageSource.trnc("ключ", 0, "к разгадке чего-либо", null, locale), "clues");
+        assertEquals(messageSource.trnc("ключ", 1, "к разгадке чего-либо", null, locale), "clue");
+        assertEquals(messageSource.trnc("ключ", 2, "к разгадке чего-либо", null, locale), "clues");
+        assertEquals(messageSource.trnc("ключ", 5, "к разгадке чего-либо", null, locale), "clues");
+
+        assertEquals(messageSource.trnc("ключ", 0, "ключ воды, приток реки", null, locale), "feeders");
+        assertEquals(messageSource.trnc("ключ", 1, "ключ воды, приток реки", null, locale), "feeder");
+        assertEquals(messageSource.trnc("ключ", 2, "ключ воды, приток реки", null, locale), "feeders");
+        assertEquals(messageSource.trnc("ключ", 5, "ключ воды, приток реки", null, locale), "feeders");
+
+        // В бандле только ключ, нет контекста, нет форм множественного числа...
+        // tr - простой перевод
+        assertEquals(messageSource.tr("корова", null, locale), "cow");
+        // trc - нет контекста в бандле
+        assertEquals(messageSource.trc("корова", "корова", null, locale), "корова");
+        // trn - нет форм множественного числа в бандле
+        assertEquals(messageSource.trn("корова", 0, null, locale), "корова");
+        assertEquals(messageSource.trn("корова", 1, null, locale), "cow");
+        assertEquals(messageSource.trn("корова", 2, null, locale), "корова");
+        // trnc - нет форм множественного числа в бандле, нет контекста в бандле
+        assertEquals(messageSource.trnc("корова", 0, "корова", null, locale), "корова");
+        assertEquals(messageSource.trnc("корова", 1, "корова", null, locale), "корова");
+        assertEquals(messageSource.trnc("корова", 2, "корова", null, locale), "корова");
+
+        // Перевод предложений...
+        // tr - простой перевод
+        assertEquals(messageSource.tr("Красивый лиловый шар, наполненный водородом.", null, locale), "Beautiful purple balloon filled with hydrogen.");
+        // trn - простой перевод с формами множественного числа
+        assertEquals(messageSource.trn("Красивый лиловый шар, наполненный водородом.", 0, null, locale), "Beautiful purple balloons filled with hydrogen.");
+        assertEquals(messageSource.trn("Красивый лиловый шар, наполненный водородом.", 1, null, locale), "Beautiful purple balloon filled with hydrogen.");
+        assertEquals(messageSource.trn("Красивый лиловый шар, наполненный водородом.", 2, null, locale), "Beautiful purple balloons filled with hydrogen.");
+
+        // Трансляция "системных ключей"
+        assertEquals(messageSource.tr("SYSTEM_ERROR", null, locale), "System error");
     }
 }

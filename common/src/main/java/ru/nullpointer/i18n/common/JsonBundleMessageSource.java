@@ -29,14 +29,17 @@ import com.ibm.icu.util.ULocale;
  *
  */
 // TODO Object[] args
-// TODO cash
+// TODO Оптимизация:
+//          new ULocale()
+//          buildCldrPluralPattern()
+//          getLangBundle()
+
 public class JsonBundleMessageSource extends AbstractMessageSource implements InitializingBean {
 
     private static Logger logger = LoggerFactory.getLogger(JsonBundleMessageSource.class);
     //
 
     private static final String CONTEXT_GLUE = "\u0004";
-    private static final String PLURAL_FORM_SEPARATOR = "/";
 
     private PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver;
 
@@ -64,12 +67,12 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
         return message(key, context, 1, locale, key);
     }
 
-    public String trn(String pluralKey, double number, Object[] args, Locale locale) {
-        return plural(pluralKey, number, null, args, locale);
+    public String trn(String key, double number, Object[] args, Locale locale) {
+        return plural(key, number, null, args, locale);
     }
 
-    public String trnc(String pluralKey, double number, String context, Object[] args, Locale locale) {
-        return plural(pluralKey, number, context, args, locale);
+    public String trnc(String key, double number, String context, Object[] args, Locale locale) {
+        return plural(key, number, context, args, locale);
     }
 
     @Override
@@ -112,11 +115,18 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
         return Collections.emptyList();
     }
 
-    protected String plural(String pluralKey, double number, String context, Object[] args, Locale locale) {
-        List<String> pluralForms = messages(getMessageKeyByPluralKey(pluralKey), context, 1, locale);
+    protected String plural(String key, double number, String context, Object[] args, Locale locale) {
+        List<String> pluralForms = messages(key, context, 1, locale);
 
-        if (pluralForms.isEmpty()) {
-            return pluralKey;
+        if (pluralForms.isEmpty() || pluralForms.contains("") || pluralForms.contains(null)) {
+            return key;
+        }
+
+        Integer pluralFormCount = getPluralFormCount(locale);
+        if (pluralFormCount > pluralForms.size()) {
+            for (Integer i = 0; i < pluralFormCount - pluralForms.size(); i++) {
+                pluralForms.add(key);
+            }
         }
 
         String pluralPattern = buildCldrPluralPattern(pluralForms, locale);
@@ -125,8 +135,11 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
         return pluralFormat.format(number);
     }
 
-    protected String getMessageKeyByPluralKey(String pluralKey) {
-        return pluralKey.split(PLURAL_FORM_SEPARATOR)[0];
+    @SuppressWarnings("unchecked")
+    protected Integer getPluralFormCount(Locale locale) {
+        Map<String, Object> langBundle = getLangBundle(locale);
+
+        return (Integer) ((Map<String, Map<String, Object>>) langBundle.get("")).get("pluralForms").get("count");
     }
 
     protected String buildCldrPluralPattern(List<String> pluralForms, Locale locale) {
