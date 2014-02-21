@@ -4,7 +4,7 @@
     <parent>
         <groupId>ru.nullpointer</groupId>
         <artifactId>i18n</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>i18n-common</artifactId>
     <packaging>jar</packaging>
