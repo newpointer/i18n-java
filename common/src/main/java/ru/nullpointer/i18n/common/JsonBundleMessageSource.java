@@ -5,6 +5,7 @@ package ru.nullpointer.i18n.common;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,15 +48,15 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
 
     private Map<String, Map<String, Object>> bundle;
 
-    private String jsonBundlePath;
+    private List<String> jsonBundlePaths;
 
-    public void setJsonBundlePath(String jsonBundlePath) {
-        this.jsonBundlePath = jsonBundlePath;
+    public void setJsonBundlePaths(List<String> jsonBundlePaths) {
+        this.jsonBundlePaths = jsonBundlePaths;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.hasText(jsonBundlePath, "'jsonBundlePath' must be set");
+        Assert.notEmpty(jsonBundlePaths, "'jsonBundlePaths' must be set");
         init();
     }
 
@@ -177,19 +178,46 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
         return new String[]{locale.getLanguage(), locale.getCountry()};
     }
 
-    @SuppressWarnings("unchecked")
     private void init() throws Exception {
         objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
         objectMapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false);
         objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+        bundle = makeBundle();
+
+        /*
+        Assert.notNull(bundle);
         pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
 
-        org.springframework.core.io.Resource[] resourceList = pathMatchingResourcePatternResolver.getResources(jsonBundlePath);
+        org.springframework.core.io.Resource[] resourceList = pathMatchingResourcePatternResolver.getResources(jsonBundlePaths.get(0));
         Assert.notEmpty(resourceList, "'jsonBundle' must be exist");
 
         bundle = objectMapper.readValue(resourceList[0].getInputStream(), Map.class);
         Assert.notNull(bundle);
+        */
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Map<String, Object>> makeBundle() throws Exception {
+        Map<String, Map<String, Object>> bundle = new HashMap<String, Map<String, Object>>();
+
+        pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
+
+        for (String jsonBundlePath : jsonBundlePaths) {
+            org.springframework.core.io.Resource[] resourceList = pathMatchingResourcePatternResolver.getResources(jsonBundlePath);
+            Assert.notEmpty(resourceList, "'jsonBundle' must be exist");
+            Map<String, Map<String, Object>> b = objectMapper.readValue(resourceList[0].getInputStream(), Map.class);
+
+            for (String lang : b.keySet()) {
+                if (bundle.containsKey(lang)) {
+                    bundle.get(lang).putAll(b.get(lang));
+                } else {
+                    bundle.put(lang, b.get(lang));
+                }
+            }
+        }
+
+        return bundle;
     }
 }

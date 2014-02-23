@@ -19,7 +19,13 @@
 
     <bean id="messageSource" class="ru.nullpointer.i18n.common.JsonBundleMessageSource">
         <property name="parentMessageSource" ref="resourceBundleMessageSource" />
-        <property name="jsonBundlePath" value="classpath*:/i18n/bundle/test/bundle.json" />
+        <property name="jsonBundlePaths">
+            <list>
+                <value>classpath*:/i18n/bundle/test/bundle_1.json</value>
+                <value>classpath*:/i18n/bundle/test/bundle_2.json</value>
+                <value>classpath*:/i18n/bundle/test/bundle_3.json</value>
+            </list>
+        </property>
     </bean>
 
 </beans>
