@@ -1,0 +1,19 @@
+{
+  "en": {
+    "": {
+      "pluralForms": {
+        "count": 2,
+        "ruleCode": "n != 1",
+        "cldrFormat": "one{0}other{1}"
+      }
+    },
+    "ключ": [
+      null,
+      "key"
+    ],
+    "корова": [
+      null,
+      "cow"
+    ]
+  }
+}
