@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Locale;
 
 import javax.annotation.Resource;
+import org.junit.Before;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-    "classpath:/spring/testContext.xml",
-})
+    "classpath:/spring/testContext.xml",})
 public class JsonBundleMessageSourceTest {
 
     private static Logger logger = LoggerFactory.getLogger(JsonBundleMessageSourceTest.class);
@@ -31,6 +31,11 @@ public class JsonBundleMessageSourceTest {
 
     @Resource
     private JsonBundleMessageSource messageSource;
+
+    @Before
+    public void setUp() {
+        messageSource.setDefaultBundle("en");
+    }
 
     @Test
     public void test_bean() {
@@ -155,5 +160,10 @@ public class JsonBundleMessageSourceTest {
 
         // Трансляция "системных ключей"
         assertEquals(messageSource.tr("SYSTEM_ERROR", null, locale), "System error");
+    }
+
+    @Test
+    public void testDefaultBundle() {
+        assertEquals(messageSource.tr("ключ", null, Locale.FRENCH), "key");
     }
 }

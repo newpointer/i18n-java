@@ -40,8 +40,14 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
 
     private List<String> jsonBundlePaths;
 
+    private String defaultBundle;
+
     public void setJsonBundlePaths(List<String> jsonBundlePaths) {
         this.jsonBundlePaths = jsonBundlePaths;
+    }
+
+    public void setDefaultBundle(String defaultBundle) {
+        this.defaultBundle = defaultBundle;
     }
 
     @Override
@@ -157,6 +163,10 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
                 langBundle = bundle.get(langKey);
                 break;
             }
+        }
+
+        if (langBundle == null && defaultBundle != null) {
+            langBundle = bundle.get(defaultBundle);
         }
 
         Assert.notNull(langBundle, "Locale is not supported: " + locale);
