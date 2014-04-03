@@ -1,6 +1,3 @@
-/**
- *
- */
 package ru.nullpointer.i18n.common;
 
 import java.text.MessageFormat;
@@ -9,24 +6,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.Assert;
-
 import com.ibm.icu.text.PluralFormat;
 import com.ibm.icu.util.ULocale;
+import org.springframework.util.StringUtils;
 
 /**
  * @author ankostyuk
+ * @author Alexander Yastrebov
  *
  */
 // TODO Object[] args
@@ -34,11 +28,7 @@ import com.ibm.icu.util.ULocale;
 //          new ULocale()
 //          buildCldrPluralPattern()
 //          getLangBundle()
-
 public class JsonBundleMessageSource extends AbstractMessageSource implements InitializingBean {
-
-    private static Logger logger = LoggerFactory.getLogger(JsonBundleMessageSource.class);
-    //
 
     private static final String CONTEXT_GLUE = "\u0004";
 
@@ -86,7 +76,7 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
 
         String message = (messageIndex >= 0 && messageIndex < messageList.size() ? messageList.get(messageIndex) : null);
 
-        if (!StringUtils.isBlank(message)) {
+        if (StringUtils.hasText(message)) {
             return message;
         }
 
@@ -187,15 +177,15 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
         bundle = makeBundle();
 
         /*
-        Assert.notNull(bundle);
-        pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
+         Assert.notNull(bundle);
+         pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
 
-        org.springframework.core.io.Resource[] resourceList = pathMatchingResourcePatternResolver.getResources(jsonBundlePaths.get(0));
-        Assert.notEmpty(resourceList, "'jsonBundle' must be exist");
+         org.springframework.core.io.Resource[] resourceList = pathMatchingResourcePatternResolver.getResources(jsonBundlePaths.get(0));
+         Assert.notEmpty(resourceList, "'jsonBundle' must be exist");
 
-        bundle = objectMapper.readValue(resourceList[0].getInputStream(), Map.class);
-        Assert.notNull(bundle);
-        */
+         bundle = objectMapper.readValue(resourceList[0].getInputStream(), Map.class);
+         Assert.notNull(bundle);
+         */
     }
 
     @SuppressWarnings("unchecked")
