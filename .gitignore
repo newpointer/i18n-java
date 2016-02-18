@@ -1,14 +1,35 @@
+# maven 
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# idea
+.idea/
+*.iml
+
+# eclipse
+.classpath
+.project
+.settings/
+
+# netbeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+.nb-gradle/
+
 .tmp*
 
 /.DS_Store
 .DS_Store
 
-/.project
-/.settings
-common/.classpath
-common/.project
-common/.settings/
-common/target/
-
-*.versionsBackup
 *.log

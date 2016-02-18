@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -21,7 +22,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author ankostyuk
  * @author Alexander Yastrebov
- *
+ * @author val
  */
 // TODO Object[] args
 // TODO Оптимизация:
@@ -180,9 +181,9 @@ public class JsonBundleMessageSource extends AbstractMessageSource implements In
 
     private void init() throws Exception {
         objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-        objectMapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false);
-        objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         bundle = makeBundle();
 
